@@ -18,7 +18,10 @@
     "core-js": "^3.3.2",
     "element-ui": "^2.13.0",
     "lodash": "^4.17.15",
+    "papaparse": "^5.1.1",
     "physiomeportal": "^0.4.13",
+    "plotly": "^1.0.6",
+    "plotly.js-dist": "^1.52.1",
     "vue": "^2.6.10"
   },
   "devDependencies": {

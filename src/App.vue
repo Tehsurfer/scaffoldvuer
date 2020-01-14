@@ -1,16 +1,16 @@
 <template>
   <div id="app">
-    <ScaffoldVuer url="https://mapcore-bucket1.s3-us-west-2.amazonaws.com/others/a3/a3_metadata.json" ref="scaffold" showColourPicker/>
+    <PlotVuer url='https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/csv-data/stellate/sample_2/cell_1/18525003_channel_1.csv'></PlotVuer>
   </div>
 </template>
 
 <script>
-import ScaffoldVuer from './components/ScaffoldVuer.vue'
 
+import PlotVuer from './components/PlotVuer'
 export default {
   name: 'app',
   components: {
-    ScaffoldVuer
+    PlotVuer
   }
 }
 </script>
