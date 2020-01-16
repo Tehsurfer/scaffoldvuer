@@ -1,147 +1,87 @@
 <template>
-  <div class="plot-container">
-      
-      <div class="resize-drag">
-        resize me!
-        <div class='plot' id="plot" ref="plotRef"></div>
-        </div>
+  <div class="plotvuer_parent">
+    <vue-plotly
+      class ='chart'
+      ref="plotly"
+      :data="pdata"
+      :layout="layout"
+      :autoResize="true"
+    />
+    <el-select ref="selectBox" v-model="channel" @change="plot(channel)"  placeholder="Select a channel">
+      <el-option
+        v-for="item in items"
+        :key="item"
+        :label="item"
+        :value="item">
+      </el-option>
+    </el-select>
   </div>
-  
 </template>
-
 <script>
-
+import VuePlotly from "@statnett/vue-plotly"
+import Vue from "vue"
+import {Select, Option} from 'element-ui'
+import 'element-ui/lib/theme-chalk/index.css'
 import CsvManager from "./csv_manager"
-var csv = new CsvManager()
-import Plotly from 'plotly.js-dist/plotly'
-import interact from 'interactjs'
 import ReziseSensor from 'css-element-queries/src/ResizeSensor'
 
+var csv = new CsvManager()
+
+Vue.use(Select)
+Vue.use(Option)
 export default {
   name: "PlotVuer",
-  beforeCreate: function() {
-  },
-  methods: {
-    loadURL: function(url) {
-      csv.loadFile(url).then( () => {
-        this.pdata[0].x = csv.getColoumnByIndex(0).shift();
-        this.pdata[0].y = csv.getColoumnByIndex(1).shift();
-        this.pdata[0].type = csv.getDataType()
-        this.items = csv.getHeaders();
-        this.plot_channel(csv.getHeaderByIndex(1))
-        return true
-      });
-    },
-    plot_channel: function(channel){
-      this.layout.title = channel
-      window.pdata = this.pdata
-      this.pdata[0].y = csv.getColoumnByName(channel)
-      window.ppplot = this.plot
-      Plotly.plot(this.$refs.plotRef, this.pdata)
-    },
-    react() {
-      return Plotly.react(this.$refs.plotRef, this.pdata)
-    },
-    handleResize: function (){
-      new ReziseSensor(this.$el.querySelector('.resize-drag'), ()=>{
-        Plotly.relayout(this.$refs.plotRef,{
-          width: this.$el.querySelector('.resize-drag').width,
-          height: this.$el.querySelector('.resize-drag').height})
-      })
-    }
-  },
-  props: { url: String},
+  components: { VuePlotly },
+  props: ["url", "height"],
   data: function() {
     return {
       items: ['first', 'second', 'third'],
       pdata: [{ x: ['1', '2', '3', '4'], y: [10, 25, 20, 50], type: 'scatter' }],
       layout: {
-        title: "edit this title"
+        title: "edit this title",
+        paper_bgcolor:'rgba(0,0,0,0)',
+        plot_bgcolor:'rgba(0,0,0,0)'
       },
-      channel: 'Select a channel',
-      plot: undefined
+      channel: 'Select a channel'
     };
   },
-  computed: {
-  },
-  created(){
-    this.loadURL(this.url)
+  methods: {
+    loadURL: function(url) {
+      csv.loadFile(url).then(() => {
+        this.pdata[0].x = csv.getColoumnByIndex(0).shift();
+        this.pdata[0].y = csv.getColoumnByIndex(1).shift();
+        this.pdata[0].type = csv.getDataType()
+        this.items = csv.getHeaders();
+        this.plot(csv.getHeaderByIndex(1))
+        return true
+      });
+    },
+    plot: function(channel){
+      this.layout.title = channel
+      window.pdata = this.pdata
+      this.pdata[0].y = csv.getColoumnByName(channel)
+    },
+    handleResize: function (){
+      new ReziseSensor(this.$el, ()=>{
+        window.helppp = this.$el
+        window.hhhh = this.$refs.selectBox
+        window.hh = this.height
+        var newHeight = this.height - this.$refs.selectBox.$el.clientHeight
+        this.layout.title = 'Width now:' + this.$el.clientWidth + ' Height now: ' + newHeight
+        this.$refs.plotly.relayout({
+          width: this.$el.clientWidth,
+          height: newHeight})
+      })
+    }
   },
   mounted(){
-    this.$watch('data', () => {
-      this.react()
-    }, { deep: !this.watchShallow })
-    this.$watch('url', () => {
-      this.loadURL(this.url)
-    }, { deep: !this.watchShallow })
-    interact('.resize-drag')
-       .resizable({
-    // resize from all edges and corners
-    edges: { left: true, right: true, bottom: true, top: true },
-
-    modifiers: [
-      // keep the edges inside the parent
-      interact.modifiers.restrictEdges({
-        outer: 'parent'
-      }),
-
-      // minimum size
-      interact.modifiers.restrictSize({
-        min: { width: 100, height: 50 }
-      })
-    ],
-
-    inertia: true
-  })
-  .draggable({
-    onmove: window.dragMoveListener,
-    inertia: true,
-    modifiers: [
-      interact.modifiers.restrictRect({
-        restriction: 'parent',
-        endOnly: true
-      })
-    ]
-  })
-  .on('resizemove', function (event) {
-    var target = event.target
-    var x = (parseFloat(target.getAttribute('data-x')) || 0)
-    var y = (parseFloat(target.getAttribute('data-y')) || 0)
-
-    // update the element's style
-    target.style.width = event.rect.width + 'px'
-    target.style.height = event.rect.height + 'px'
-
-    // translate when resizing from top or left edges
-    x += event.deltaRect.left
-    y += event.deltaRect.top
-
-    target.style.webkitTransform = target.style.transform =
-        'translate(' + x + 'px,' + y + 'px)'
-
-    target.setAttribute('data-x', x)
-    target.setAttribute('data-y', y)
+    this.handleResize()
     
-    
-  })
-  }
+  },
+  created() {
+    this.loadURL(this.url)
+  },
+  destroyed() {
+  },
 };
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-.resize-drag {
-  /* background-color: #29e;
-  color: white; */
-  font-size: 20px;
-  font-family: sans-serif;
-  border-radius: 8px;
-  padding: 20px;
-  touch-action: none;
-
-  width: 820px;
-
-  /* This makes things *much* easier */
-  box-sizing: border-box;
-}
-</style>
