@@ -1,5 +1,26 @@
 <template>
-  <div class="plotvuer_parent">
+  <div class="plotvuer_parent" :title="collapseName">
+    <div class="options">
+    <el-collapse v-model="ccheckbox">
+          <el-collapse-item
+            :title="collapseName"
+            >
+             <el-checkbox-group v-model="ccheckbox" size="small">
+              <el-row v-for="item in list2" :key="item">
+                <div style= "display: flex;justify-content: space-between;">
+                  <el-checkbox
+                    style="margin-top:3px;"
+                    :label="item"
+                    :checked="false"
+                    @change="plotAsHeatmap($event)"
+                    border
+                  >{{item}}</el-checkbox>
+                    </div>
+              </el-row>
+            </el-checkbox-group>
+          </el-collapse-item>
+    </el-collapse>
+    </div>
     <vue-plotly
       class ='chart'
       ref="plotly"
@@ -20,7 +41,7 @@
 <script>
 import VuePlotly from "@statnett/vue-plotly"
 import Vue from "vue"
-import {Select, Option} from 'element-ui'
+import {Select, Option, Collapse, CollapseItem} from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import CsvManager from "./csv_manager"
 import ReziseSensor from 'css-element-queries/src/ResizeSensor'
@@ -29,6 +50,8 @@ var csv = new CsvManager()
 
 Vue.use(Select)
 Vue.use(Option)
+Vue.use(Collapse)
+Vue.use(CollapseItem);
 export default {
   name: "PlotVuer",
   components: { VuePlotly },
@@ -42,8 +65,11 @@ export default {
         paper_bgcolor:'rgba(0,0,0,0)',
         plot_bgcolor:'rgba(0,0,0,0)'
       },
-      channel: 'Select a channel'
-    };
+      channel: 'Select a channel',
+      collapseName: 'Options',
+      list2: ['Plot As Heatmap', 'Export as CSV'],
+      ccheckbox: [1,2,3]
+    }
   },
   methods: {
     loadURL: function(url) {
@@ -53,14 +79,28 @@ export default {
         this.pdata[0].type = csv.getDataType()
         this.items = csv.getHeaders();
         this.plot(csv.getHeaderByIndex(1))
+        
         return true
       });
     },
     plot: function(channel){
-      this.layout.title = channel
       window.pdata = this.pdata
       this.pdata[0].y = csv.getColoumnByName(channel)
     },
+    plotAsHeatmap: function(event){
+      if (event){
+        this.pdata = [{
+          z: csv.getAllData(),
+          x: csv.getColoumnByIndex(0).shift(),
+          y: csv.getHeaders().shift(),
+          type: 'heatmap'
+        }];
+      } else {
+        this.pdata[0].x = csv.getColoumnByIndex(0).shift();
+        this.pdata[0].y = csv.getColoumnByIndex(1).shift();
+        this.pdata[0].type = 'bar'
+      }
+      },
     handleResize: function (){
       new ReziseSensor(this.$el, ()=>{
         window.helppp = this.$el
@@ -85,3 +125,15 @@ export default {
   },
 };
 </script>
+<style scoped>
+.options {
+  position: absolute;
+  z-index: 11000;
+  top: 10px;
+  left: 10px;
+  height: calc(100% - 20px);
+  text-align: left;
+  overflow:auto;
+
+}
+</style>

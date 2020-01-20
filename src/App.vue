@@ -1,6 +1,7 @@
 <template>
   <div id="app">
-    
+        <ScaffoldVuer url="https://mapcore-bucket1.s3-us-west-2.amazonaws.com/others/a3/a3_metadata.json" ref="scaffold" showColourPicker/>
+
      <vue-draggable-resizable :w="800" :h="600" @dragging="onDrag" @resizing="onResize" :parent="true">
   
       <PlotVuer :url="url" :height="height/2"></PlotVuer>
@@ -23,15 +24,18 @@ import 'vue-draggable-resizable/dist/VueDraggableResizable.css'
 Vue.component('vue-draggable-resizable', VueDraggableResizable)
 Vue.use(Input);
 import PlotVuer from './components/PlotVuer'
+import ScaffoldVuer from './components/ScaffoldVuer.vue'
+
 export default {
   name: 'app',
   components: {
+    ScaffoldVuer,
     PlotVuer,
    VueDraggableResizable 
   },
   data: function(){
     return {
-      url: 'https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/csv-data/stellate/sample_2/cell_1/18525003_channel_1.csv',
+      url: 'https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/csv-data/use-case-4/RNA_Seq.csv',
             width: 0,
       height: 600,
       x: 0,
