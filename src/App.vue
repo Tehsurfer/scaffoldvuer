@@ -4,8 +4,8 @@
 
      <vue-draggable-resizable :w="800" :h="600" @dragging="onDrag" @resizing="onResize" :parent="true">
   
-      <PlotVuer :url="urls[0]" :height="height/2"></PlotVuer>
-      <PlotVuer :url="urls[1]" :height="height/2"></PlotVuer>
+      <PlotVuer :url="url" :height="height/2"></PlotVuer>
+      <PlotVuer :url="url" :height="height/2"></PlotVuer>
     
     
     </vue-draggable-resizable>
@@ -35,7 +35,7 @@ export default {
   },
   data: function(){
     return {
-      urls: ['https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/csv-data/use-case-4/RNA_Seq.csv', 'https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/csv-data/use-case-2/Sample_1_18907001_channel_1.csv'],
+      url: 'https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/csv-data/use-case-4/RNA_Seq.csv',
             width: 0,
       height: 600,
       x: 0,

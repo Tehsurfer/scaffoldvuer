@@ -28,12 +28,7 @@
       :layout="layout"
       :autoResize="true"
     />
-    <el-select ref="selectBox" v-model="channel" @change="traceEvent($event)"     
-    multiple
-    filterable
-    allow-create
-    default-first-option
-    placeholder="Add and remove data to the plot">
+    <el-select ref="selectBox" v-model="channel" @change="plot(channel)"  placeholder="Select a channel">
       <el-option
         v-for="item in items"
         :key="item"
@@ -41,7 +36,6 @@
         :value="item">
       </el-option>
     </el-select>
-      
   </div>
 </template>
 <script>
@@ -52,7 +46,7 @@ import 'element-ui/lib/theme-chalk/index.css'
 import CsvManager from "./csv_manager"
 import ReziseSensor from 'css-element-queries/src/ResizeSensor'
 
-
+var csv = new CsvManager()
 
 Vue.use(Select)
 Vue.use(Option)
@@ -64,9 +58,8 @@ export default {
   props: ["url", "height"],
   data: function() {
     return {
-      csv: new CsvManager(),
       items: ['first', 'second', 'third'],
-      pdata: [{ x: [], y: [], type: 'scatter' }],
+      pdata: [{ x: ['1', '2', '3', '4'], y: [10, 25, 20, 50], type: 'scatter' }],
       layout: {
         title: "edit this title",
         paper_bgcolor:'rgba(0,0,0,0)',
@@ -80,66 +73,32 @@ export default {
   },
   methods: {
     loadURL: function(url) {
-      this.csv.loadFile(url).then(() => {
-        let x = this.csv.getColoumnByIndex(0)
-        x.shift()
-        let y = this.csv.getColoumnByIndex(1)
-        y.shift()
-        this.pdata[0].x = x;
-        this.pdata[0].y = y;
-        this.pdata[0].type = this.csv.getDataType()
-        this.items = this.csv.getHeaders();
-        this.plot(this.csv.getHeaderByIndex(1))
+      csv.loadFile(url).then(() => {
+        this.pdata[0].x = csv.getColoumnByIndex(0).shift();
+        this.pdata[0].y = csv.getColoumnByIndex(1).shift();
+        this.pdata[0].type = csv.getDataType()
+        this.items = csv.getHeaders();
+        this.plot(csv.getHeaderByIndex(1))
         
         return true
       });
     },
     plot: function(channel){
       window.pdata = this.pdata
-      let y = this.csv.getColoumnByName(channel)
-      y.shift()
-      this.pdata[0].y = y
-    },
-    traceEvent: function(selectList){
-      window.selectList = []
-      this.pdata = []
-      for(let i in selectList) {
-        this.pdata.push({})
-        let x = this.csv.getColoumnByIndex(0)
-        x.shift()
-        let y = this.csv.getColoumnByName(selectList[i])
-        y.shift()
-        this.pdata[i].x = x;
-        this.pdata[i].y = y;
-        this.pdata[i].name = selectList[i]
-        this.pdata[i].type = this.csv.getDataType()
-        window.selectList.push(selectList[i])
-
-      }
-      window.ppdata = selectList
+      this.pdata[0].y = csv.getColoumnByName(channel)
     },
     plotAsHeatmap: function(event){
       if (event){
-        let x = this.csv.getColoumnByIndex(0)
-        let y = this.csv.getHeaders()
-        x.shift()
-        y.shift()
         this.pdata = [{
-          z: [...this.csv.getAllData()],
-          x: x,
-          y: y,
+          z: csv.getAllData(),
+          x: csv.getColoumnByIndex(0).shift(),
+          y: csv.getHeaders().shift(),
           type: 'heatmap'
         }];
       } else {
-        let x = this.csv.getColoumnByIndex(0)
-        x.shift()
-        let y = this.csv.getColoumnByIndex(1)
-        y.shift()
-        this.pdata[0].x = x;
-        this.pdata[0].y = y;
+        this.pdata[0].x = csv.getColoumnByIndex(0).shift();
+        this.pdata[0].y = csv.getColoumnByIndex(1).shift();
         this.pdata[0].type = 'bar'
-        this.pdata[0].z = undefined
-        this.plot(this.csv.getHeaderByIndex(1))
       }
       },
     handleResize: function (){
