@@ -2,10 +2,10 @@
   <div id="app">
         <ScaffoldVuer url="https://mapcore-bucket1.s3-us-west-2.amazonaws.com/others/a3/a3_metadata.json" ref="scaffold" showColourPicker/>
 
-     <vue-draggable-resizable :w="800" :h="600" @dragging="onDrag" @resizing="onResize" :parent="true">
+     <vue-draggable-resizable :w="1000" :h="1000" @dragging="onDrag" @resizing="onResize" :parent="true">
   
-      <PlotVuer :url="url" :height="height/2"></PlotVuer>
-      <PlotVuer :url="url" :height="height/2"></PlotVuer>
+      <PlotVuer :url="urlList[0]" :height="height/2" :plotType="plotTypeList[0]"></PlotVuer>
+      <PlotVuer :url="urlList[1]" :height="height/2" :plotType="plotTypeList[1]"></PlotVuer>
     
     
     </vue-draggable-resizable>
@@ -35,10 +35,10 @@ export default {
   },
   data: function(){
     return {
-      url: 'https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/csv-data/use-case-4/RNA_Seq.csv',
-            width: 0,
+      urlList: ['https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/csv-data/use-case-4/RNA_Seq.csv', 'https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/csv-data/use-case-2/Sample_1_18907001_channel_1.csv'],
+      width: 0,
       height: 600,
-      x: 0,
+      plotTypeList: ["heatmap", "scatter"],
       y: 0
     }
   },

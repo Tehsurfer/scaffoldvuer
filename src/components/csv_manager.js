@@ -59,7 +59,9 @@ function Sparccsv() {
   }
 
   this.getColoumnByIndex = function (index) {
-    return _this.csv_data.data.map((row) => { return row[index] })
+     let col = _this.csv_data.data.map((row) => { return row[index] })
+     col.shift()
+     return col
   }
 
   this.getHeaderByIndex = function (index) {
@@ -79,14 +81,14 @@ function Sparccsv() {
     return this.getColoumnByIndex(column_index)
   }
 
-  this.export = function(state){
+  this.export = function(selectedChannels){
     var headerList = []
     var selectedData = []
     headerList.push(_this.getHeaderByIndex(0))
     selectedData.push(_this.getColoumnByIndex(0))
-    for (let i in state.selectedChannels){
-      headerList.push(state.selectedChannels[i])
-      selectedData.push(_this.getColoumnByName(state.selectedChannels[i]))
+    for (let i in selectedChannels){
+      headerList.push(selectedChannels[i])
+      selectedData.push(_this.getColoumnByName(selectedChannels[i]))
     }
     var filename = 'sparc-export-' + Math.random().toString(36).slice(-5)  + '.csv'
     downloadCSV({
